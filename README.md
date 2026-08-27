@@ -7,6 +7,12 @@
 </p>
 
 <p align="center">
+  <a href="https://fin-genie-wine.vercel.app/">
+    <img src="https://img.shields.io/badge/🚀%20LIVE%20DEMO-4F46E5?style=for-the-badge" alt="Visit FinGenie Live Demo" />
+  </a>
+</p>
+
+<p align="center">
   FinGenie is a full-stack personal finance application that combines account management,
   transaction tracking, budgets, financial goals, analytics, AI assistance, smart
   categorization, notifications, reports, and administrative tools in one place.
@@ -17,6 +23,22 @@
     <img src="https://img.shields.io/badge/📸%20VIEW%20ALL%20SCREENSHOTS-4F46E5?style=for-the-badge" alt="View All Screenshots" />
   </a>
 </p>
+
+---
+
+## 🌐 Live Demo
+
+Try the deployed FinGenie application:
+
+<p align="center">
+  <a href="https://fin-genie-wine.vercel.app/">
+    <img src="https://img.shields.io/badge/🚀%20VISIT%20FINGENIE%20LIVE-0F766E?style=for-the-badge" alt="Visit FinGenie Live" />
+  </a>
+</p>
+
+**Live application:** [https://fin-genie-wine.vercel.app/](https://fin-genie-wine.vercel.app/)
+
+> The live demo is deployed on Vercel. Some features may require authentication and configured third-party services.
 
 ---
 
