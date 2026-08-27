@@ -129,18 +129,30 @@ export default function GoalDetailClient({ goalId }) {
     }
   }
 
-  if (loading) return <div className="p-10 text-center">Loading...</div>;
-  if (!goal) return <div className="p-10 text-center">No goal found.</div>;
+  if (loading)
+    return (
+      <div className="p-10 text-center text-gray-700 dark:text-gray-200">
+        Loading...
+      </div>
+    );
+  if (!goal)
+    return (
+      <div className="p-10 text-center text-gray-700 dark:text-gray-200">
+        No goal found.
+      </div>
+    );
 
   return (
-    <div className="min-h-screen bg-gray-50 py-12 px-4">
+    <div className="min-h-screen bg-gray-50 px-4 py-12 text-gray-900 dark:bg-slate-900 dark:text-gray-100">
       {/* Centered Container */}
       <div className="max-w-5xl mx-auto space-y-8">
         {/* Header */}
         <div className="flex justify-between items-center">
           <div>
-            <h1 className="text-3xl font-bold text-gray-800">{goal.title}</h1>
-            <p className="text-sm text-gray-500 mt-1">
+            <h1 className="text-3xl font-bold text-gray-800 dark:text-gray-100">
+              {goal.title}
+            </h1>
+            <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
               Track progress toward your financial goal
             </p>
           </div>
@@ -166,35 +178,35 @@ export default function GoalDetailClient({ goalId }) {
         </div>
 
         {/* Goal Progress Card */}
-        <div className="bg-white rounded-3xl shadow-lg p-8">
-          <div className="flex justify-between text-sm text-gray-500">
+        <div className="rounded-3xl bg-white p-8 shadow-lg dark:bg-slate-800 dark:shadow-black/20">
+          <div className="flex justify-between text-sm text-gray-500 dark:text-gray-300">
             <span>Target: Rs.{formatCurrency(goal.targetAmount)}</span>
             <span>Due: {new Date(goal.endDate).toLocaleDateString()}</span>
           </div>
 
           <div className="mt-6">
-            <div className="h-5 bg-gray-100 rounded-full overflow-hidden">
+            <div className="h-5 overflow-hidden rounded-full bg-gray-100 dark:bg-slate-700">
               <div
                 className="h-5 bg-gradient-to-r from-green-400 to-emerald-600 transition-all duration-500"
                 style={{ width: `${progressPct}%` }}
               />
             </div>
-            <div className="mt-3 text-center text-lg font-semibold text-green-600">
+            <div className="mt-3 text-center text-lg font-semibold text-green-600 dark:text-green-400">
               {progressPct.toFixed(1)}% Completed
             </div>
           </div>
         </div>
 
         {/* History */}
-        <div className="bg-white rounded-3xl shadow-lg p-8">
+        <div className="rounded-3xl bg-white p-8 shadow-lg dark:bg-slate-800 dark:shadow-black/20">
           <div className="flex justify-between mb-6">
-            <h3 className="font-semibold text-gray-800">
+            <h3 className="font-semibold text-gray-800 dark:text-gray-100">
               Contribution History
             </h3>
             <select
               value={filterWindow}
               onChange={(e) => setFilterWindow(e.target.value)}
-              className="border rounded-lg px-3 py-1.5 text-sm"
+              className="rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-sm text-gray-900 dark:border-slate-600 dark:bg-slate-700 dark:text-gray-100"
             >
               <option value="all">All</option>
               <option value="this_month">This Month</option>
@@ -202,24 +214,28 @@ export default function GoalDetailClient({ goalId }) {
           </div>
 
           {contributions.length === 0 && (
-            <p className="text-gray-500 text-sm">No contributions yet.</p>
+            <p className="text-sm text-gray-500 dark:text-gray-400">
+              No contributions yet.
+            </p>
           )}
 
           <div className="space-y-4">
             {contributions.map((c) => (
               <div
                 key={c.id}
-                className="flex justify-between items-center bg-gray-50 rounded-xl p-4"
+                className="flex items-center justify-between rounded-xl bg-gray-50 p-4 dark:bg-slate-700/70"
               >
                 <div>
-                  <div className="font-medium text-gray-800">
+                  <div className="font-medium text-gray-800 dark:text-gray-100">
                     Rs.{formatCurrency(c.amount)}
                   </div>
-                  <div className="text-xs text-gray-500">
+                  <div className="text-xs text-gray-500 dark:text-gray-400">
                     {new Date(c.date).toLocaleString()}
                   </div>
                 </div>
-                <div className="text-xs text-gray-500">{c.method}</div>
+                <div className="text-xs text-gray-500 dark:text-gray-400">
+                  {c.method}
+                </div>
               </div>
             ))}
           </div>
@@ -234,8 +250,8 @@ export default function GoalDetailClient({ goalId }) {
             onClick={() => setShowForm(false)}
           />
 
-          <div className="relative w-full max-w-md bg-white rounded-3xl shadow-2xl p-8">
-            <h4 className="text-xl font-semibold mb-6">Add Contribution</h4>
+          <div className="relative w-full max-w-md rounded-3xl bg-white p-8 text-gray-900 shadow-2xl dark:bg-slate-800 dark:text-gray-100">
+            <h4 className="mb-6 text-xl font-semibold">Add Contribution</h4>
 
             <form onSubmit={submitContribution} className="space-y-4">
               <input
@@ -243,13 +259,13 @@ export default function GoalDetailClient({ goalId }) {
                 placeholder="Amount"
                 value={formAmount}
                 onChange={(e) => setFormAmount(e.target.value)}
-                className="w-full p-3 border rounded-xl"
+                className="w-full rounded-xl border border-gray-300 bg-white p-3 text-gray-900 placeholder:text-gray-400 dark:border-slate-600 dark:bg-slate-700 dark:text-gray-100 dark:placeholder:text-gray-400"
               />
 
               <select
                 value={formPaymentMethod}
                 onChange={(e) => setFormPaymentMethod(e.target.value)}
-                className="w-full p-3 border rounded-xl"
+                className="w-full rounded-xl border border-gray-300 bg-white p-3 text-gray-900 dark:border-slate-600 dark:bg-slate-700 dark:text-gray-100"
               >
                 <option>Bank</option>
                 <option>Card</option>
@@ -273,9 +289,11 @@ export default function GoalDetailClient({ goalId }) {
 /* ---------- Styled Stat Card ---------- */
 function StatCard({ label, value }) {
   return (
-    <div className="bg-white rounded-2xl shadow-md p-6">
-      <div className="text-xs text-gray-500">{label}</div>
-      <div className="text-2xl font-semibold mt-2">Rs.{value}</div>
+    <div className="rounded-2xl bg-white p-6 shadow-md dark:bg-slate-800 dark:shadow-black/20">
+      <div className="text-xs text-gray-500 dark:text-gray-300">{label}</div>
+      <div className="mt-2 text-2xl font-semibold text-gray-900 dark:text-gray-100">
+        Rs.{value}
+      </div>
     </div>
   );
 }

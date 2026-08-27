@@ -72,7 +72,7 @@ export default async function Home() {
       <HeroSection ctaHref={ctaHref} />
 
       {/* Stats Section */}
-      <section className="py-20 bg-background">
+      <section id="how-it-works" className="py-20 bg-background">
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             {landingStats.map((statsData, index) => (
