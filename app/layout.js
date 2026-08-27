@@ -1,7 +1,7 @@
 import { Inter } from "next/font/google";
 import "./globals.css";
 
-import { ClerkProvider } from "@clerk/nextjs";
+import { ClerkProvider, SignedIn, SignedOut } from "@clerk/nextjs";
 import Header from "@/components/header";
 import { Toaster } from "@/components/ui/sonner";
 import ThemeProviderWrapper from "@/components/ui/theme-provider";
@@ -52,16 +52,29 @@ export default function RootLayout({ children }) {
                     </p>
                   </div>
 
-                  <FooterColumn
-                    title="Product"
-                    links={[
-                      ["Dashboard", "/dashboard"],
-                      ["Transactions", "/transaction/create"],
-                      ["Goals", "/goals"],
-                      ["AI Insights", "/goals/recommendations"],
-                      ["Chat History", "/chat-history"],
-                    ]}
-                  />
+                  <SignedIn>
+                    <FooterColumn
+                      title="Product"
+                      links={[
+                        ["Dashboard", "/dashboard"],
+                        ["Transactions", "/transaction/create"],
+                        ["Goals", "/goals"],
+                        ["AI Insights", "/goals/recommendations"],
+                        ["Chat History", "/chat-history"],
+                      ]}
+                    />
+                  </SignedIn>
+                  <SignedOut>
+                    <FooterColumn
+                      title="Get Started"
+                      links={[
+                        ["Features", "/#features"],
+                        ["How It Works", "/#how-it-works"],
+                        ["Sign In", "/sign-in"],
+                        ["Create Account", "/sign-up"],
+                      ]}
+                    />
+                  </SignedOut>
                   <FooterColumn
                     title="Resources"
                     links={[

@@ -38,9 +38,11 @@ const Header = async () => {
         {/* Home-only Navigation Links */}
         <div className="hidden md:flex items-center space-x-8">
           <HeaderHomeLinks />
-          <Link href="/goals" className="text-foreground hover:text-primary">
-            Goals
-          </Link>
+          <SignedIn>
+            <Link href="/goals" className="text-foreground hover:text-primary">
+              Goals
+            </Link>
+          </SignedIn>
         </div>
 
         {/* Action Buttons */}
