@@ -1,6 +1,4 @@
 "use client";
-
-import html2pdf from "html2pdf.js";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 
 function fmt(n) {
@@ -35,23 +33,118 @@ export default function RecommendationsDashboard() {
   const dashboardRef = useRef(null);
   const appliedStorageKey = "fingen_recommendations_applied_v1";
 
-  const exportPDF = () => {
-    if (!dashboardRef.current) return;
+  const exportPDF = async () => {
+    try {
+      const { jsPDF } = await import("jspdf");
+      const pdf = new jsPDF({ unit: "mm", format: "a4" });
+      const pageWidth = pdf.internal.pageSize.getWidth();
+      const pageHeight = pdf.internal.pageSize.getHeight();
+      const margin = 16;
+      const contentWidth = pageWidth - margin * 2;
+      let y = 18;
 
-    html2pdf()
-      .set({
-        margin: 10,
-        filename: `fingen-recommendations-${new Date().toISOString().slice(0, 10)}.pdf`,
-        image: { type: "jpeg", quality: 0.98 },
-        html2canvas: { scale: 2, useCORS: true },
-        jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
-      })
-      .from(dashboardRef.current)
-      .save()
-      .catch((err) => {
-        console.error(err);
-        alert("Failed to generate PDF. Please try again.");
+      const ensureSpace = (height = 12) => {
+        if (y + height <= pageHeight - margin) return;
+        pdf.addPage();
+        y = margin;
+      };
+      const heading = (text) => {
+        ensureSpace(14);
+        pdf.setFont("helvetica", "bold");
+        pdf.setFontSize(14);
+        pdf.setTextColor(30, 41, 59);
+        pdf.text(text, margin, y);
+        y += 9;
+      };
+      const line = (label, value) => {
+        ensureSpace(8);
+        pdf.setFontSize(10);
+        pdf.setFont("helvetica", "bold");
+        pdf.setTextColor(71, 85, 105);
+        pdf.text(label, margin, y);
+        pdf.setFont("helvetica", "normal");
+        pdf.setTextColor(15, 23, 42);
+        pdf.text(String(value), margin + 58, y);
+        y += 7;
+      };
+      const paragraph = (text) => {
+        pdf.setFont("helvetica", "normal");
+        pdf.setFontSize(9);
+        pdf.setTextColor(51, 65, 85);
+        const lines = pdf.splitTextToSize(String(text), contentWidth - 6);
+        ensureSpace(lines.length * 5 + 4);
+        pdf.text(lines, margin + 3, y);
+        y += lines.length * 5 + 4;
+      };
+
+      pdf.setFillColor(79, 70, 229);
+      pdf.rect(0, 0, pageWidth, 34, "F");
+      pdf.setTextColor(255, 255, 255);
+      pdf.setFont("helvetica", "bold");
+      pdf.setFontSize(22);
+      pdf.text("Fingenie Recommendation Dashboard", margin, 17);
+      pdf.setFont("helvetica", "normal");
+      pdf.setFontSize(9);
+      pdf.text(`Generated ${new Date().toLocaleString()}`, margin, 25);
+      y = 44;
+
+      heading("Financial summary");
+      line("Monthly income", `Rs. ${fmt(profile.monthlyIncome)}`);
+      line("Monthly expenses", `Rs. ${fmt(profile.monthlyExpenses)}`);
+      line("Monthly available", `Rs. ${fmt(monthlyAvailable)}`);
+      line("Total saved", `Rs. ${fmt(currentSavedTotal)}`);
+      line("Savings rate", `${Math.round(savingsRate)}%`);
+      line("Emergency progress", `${Math.round(emergencyProgress)}%`);
+
+      y += 3;
+      heading("Recommended monthly allocation");
+      allocations.forEach((allocation) => {
+        line(
+          `${allocation.label} (${Math.round(allocation.weight * 100)}%)`,
+          `Rs. ${fmt(allocation.amount)}`,
+        );
       });
+
+      y += 3;
+      heading("Savings accounts");
+      accounts.forEach((account) => {
+        ensureSpace(18);
+        pdf.setFont("helvetica", "bold");
+        pdf.setFontSize(10);
+        pdf.setTextColor(15, 23, 42);
+        pdf.text(account.name, margin, y);
+        y += 6;
+        paragraph(
+          `Balance: Rs. ${fmt(account.current)} | Target: Rs. ${fmt(account.target)} | APY: ${account.apy || 0}%`,
+        );
+      });
+
+      y += 3;
+      heading("Recommendations");
+      if (visibleRecommendations.length === 0) {
+        paragraph("No urgent recommendations. You are on track.");
+      } else {
+        visibleRecommendations.forEach((recommendation, index) => {
+          ensureSpace(22);
+          pdf.setFont("helvetica", "bold");
+          pdf.setFontSize(10);
+          pdf.setTextColor(79, 70, 229);
+          pdf.text(`${index + 1}. ${recommendation.title}`, margin, y);
+          y += 6;
+          paragraph(recommendation.description);
+          paragraph(
+            `Impact: Rs. ${fmt(recommendation.impact)} | Effort: ${recommendation.effort} | Timeframe: ${recommendation.timeframe} | Priority: ${recommendation.priority}`,
+          );
+        });
+      }
+
+      pdf.save(
+        `fingen-recommendations-${new Date().toISOString().slice(0, 10)}.pdf`,
+      );
+    } catch (err) {
+      console.error("PDF export failed:", err);
+      alert("Failed to generate PDF. Please try again.");
+    }
   };
   useEffect(() => {
     let mounted = true;
@@ -385,7 +478,7 @@ export default function RecommendationsDashboard() {
 
   return (
     <div className="min-h-screen p-6 lg:p-12 bg-gradient-to-b from-white via-purple-50 to-green-50 dark:from-slate-900 dark:via-slate-900 dark:to-slate-900">
-      <div className="mx-auto max-w-6xl">
+      <div ref={dashboardRef} className="mx-auto max-w-6xl">
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
           <div>
@@ -398,38 +491,10 @@ export default function RecommendationsDashboard() {
           </div>
           <div className="flex gap-4 items-center">
             <button
-              onClick={() => {
-                try {
-                  const payload = {
-                    profile: profile || {},
-                    allocations,
-                    accounts,
-                    goals,
-                    recommendations,
-                    market: data.market || null,
-                    generatedAt: new Date().toISOString(),
-                  };
-                  const blob = new Blob([JSON.stringify(payload, null, 2)], {
-                    type: "application/json",
-                  });
-                  const url = URL.createObjectURL(blob);
-                  const a = document.createElement("a");
-                  a.href = url;
-                  a.download = `fingen-recommendations-${new Date()
-                    .toISOString()
-                    .slice(0, 10)}.json`;
-                  document.body.appendChild(a);
-                  a.click();
-                  a.remove();
-                  URL.revokeObjectURL(url);
-                } catch (err) {
-                  console.error(err);
-                  alert("Failed to export report.");
-                }
-              }}
+              onClick={exportPDF}
               className="px-4 py-2 bg-indigo-600 text-white rounded-lg shadow hover:bg-indigo-700"
             >
-              Export Report
+              Export PDF
             </button>
 
             <div className="bg-white dark:bg-slate-800 rounded-2xl shadow p-4 w-48">
